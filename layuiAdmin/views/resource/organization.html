@@ -1,0 +1,293 @@
+<div class="layui-fluid no-padding no-margin" id="VIEW-resource-organzation" lay-title="组织架构"></div>
+<script src="../../js/d3.v3.js"></script>
+<script>
+    var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+    var isIE = userAgent.indexOf("compatible") > -1 && userAgent.indexOf("MSIE") > -1;
+    var isEdge = userAgent.indexOf("Edge") > -1 && !isIE;
+    var treeData = [{
+        "name": "复材（江苏）电子商务有限公司",
+        "children": [{
+                "name": "数字云事业部",
+                "children": [{
+                        "name": "研发部",
+                        "children": [{
+                                "name": "信息化"
+                            },
+                            {
+                                "name": "质量管理"
+                            },
+                            {
+                                "name": "数据部"
+                            }, {
+                                "name": "平台开发"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "产品部",
+                        "children": [{
+                                "name": "产品组"
+                            },
+                            {
+                                "name": "UI组"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "商务部"
+                    }
+                ]
+            },
+
+            {
+                "name": "广西",
+                "children": [{
+                        "name": "桂林",
+                        "children": [{
+                                "name": "秀峰区"
+                            },
+                            {
+                                "name": "叠彩区"
+                            },
+                            {
+                                "name": "象山区"
+                            },
+                            {
+                                "name": "七星区"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "南宁"
+                    },
+                    {
+                        "name": "柳州"
+                    },
+                    {
+                        "name": "防城港"
+                    }
+                ]
+            },
+
+            {
+                "name": "黑龙江",
+                "children": [{
+                        "name": "哈尔滨"
+                    },
+                    {
+                        "name": "齐齐哈尔"
+                    },
+                    {
+                        "name": "牡丹江"
+                    },
+                    {
+                        "name": "大庆"
+                    }
+                ]
+            },
+
+            {
+                "name": "新疆",
+                "children": [{
+                        "name": "乌鲁木齐"
+                    },
+                    {
+                        "name": "克拉玛依"
+                    },
+                    {
+                        "name": "吐鲁番"
+                    },
+                    {
+                        "name": "哈密"
+                    }
+                ]
+            }
+        ]
+    }];
+
+    var floor = 0
+    var max = 0
+
+    function each(data, floor) {
+        for (var index = 0; index < data.length; index++) {
+            var e = data[index];
+            e.floor = floor
+            if (floor > max) {
+                max = floor
+            }
+            if (e.children && e.children.length > 0) {
+                each(e.children, floor + 1)
+            }
+        }
+    }
+    each(treeData, floor)
+
+    // ************** Generate the tree diagram  *****************
+    //定义树图的全局属性
+    var options = {
+        width: 1200,
+        height: 900,
+        boxWidth: 25,
+        boxHeight: 80
+    }
+
+    var i = 0,
+        duration = 750, //过渡延迟时间
+        root;
+
+    var zoom = d3.behavior.zoom()
+        .scaleExtent([.1, 3])
+        .on('zoom', function() {
+            svg.attr("transform", "translate(" + d3.event.translate + ") scale(" + d3.event.scale + ")");
+        });
+
+    var tree = d3.layout.tree() //创建一个树布局
+        .size([options.width, options.height]);
+
+    var diagonal = d3.svg.diagonal()
+        .projection(function(d) { return [d.x, d.y]; }); //创建新的斜线生成器
+    function zoomed() {
+        view.attr("transform", d3.event.transform);
+        gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+        gY.call(yAxis.scale(d3.event.transform.rescaleY(y)));
+    }
+    //声明与定义画布属性
+    var svg = d3.select("body")
+        .call(zoom)
+        .append("svg")
+        .attr("width", options.width)
+        .attr("height", options.height)
+        .append("g")
+    // .attr("transform", "translate(" + options.left + "," + options.top + ")");
+
+
+    root = treeData[0]; //treeData为上边定义的节点属性
+    root.x0 = options.height / 2;
+    root.y0 = 0;
+
+    update(root);
+
+    d3.select(self.frameElement).style("height", options.height);
+
+    function update(source) {
+
+        // Compute the new tree layout.计算新树图的布局
+        var nodes = tree.nodes(root).reverse(),
+            links = tree.links(nodes);
+
+        // Normalize for fixed-depth.设置y坐标点，每层占180px
+        nodes.forEach(function(d) {
+            d.y = d.depth > 2 ? d.depth * 130 : d.depth * 120;
+        });
+
+        // Update the nodes…每个node对应一个group
+        var node = svg.selectAll("g.node")
+            .data(nodes, function(d) {
+                return d.id || (d.id = ++i);
+            });
+
+        // Enter any new nodes at the parent's previous position.新增节点数据集，设置位置
+        var nodeEnter = node.enter().append("g") //在 svg 中添加一个g，g是 svg 中的一个属性，是 group 的意思，它表示一组什么东西，如一组 lines ， rects ，circles 其实坐标轴就是由这些东西构成的。
+            .attr("class", "node") //attr设置html属性，style设置css属性
+            .attr("transform", function(d) {
+                return "translate(" + d.x + "," + d.y + ")";
+            })
+            .on("click", click);
+
+        nodeEnter.append("rect")
+            .attr('y', function(d) {
+                return 0
+            })
+            .attr('x', function(d) {
+                return d.depth > 1 ? -Math.ceil(options.boxWidth / 2) : -Math.ceil((d.name.length * 13) / 2) - 15
+            })
+            .attr('width', function(d) {
+                return d.depth > 1 ? options.boxWidth : Math.ceil(d.name.length * 13 + 30);
+            })
+            .attr('height', function(d) {
+                return d.depth > 1 ? options.boxHeight : 35;
+            })
+            .attr("fill", function(d) {
+                return d.depth == 0 ? '#bd00ff' : '#0d75f1';
+            })
+
+        //添加标签
+        nodeEnter.append("text")
+            .attr('x', function(d) {
+                return d.depth > 1 ? isIE || isEdge ? -5 : 0 : Math.ceil(d.name.length * 13 / 2)
+            })
+            .attr('y', function(d) {
+                return d.depth > 1 ? 10 : 22;
+            })
+            .attr("text-anchor", function(d) {
+                return d.depth > 1 ? 'middle' : "start";
+            })
+            .attr('style', function(d) {
+                return d.depth > 1 ? 'writing-mode: tb;letter-spacing:0px;glyph-orientation-vertical: 0;background-color: #ccc;display: block;padding: 20px;' : ""
+            })
+            .attr("text-anchor", function(d) { return d.depth > 1 ? "start" : "end"; })
+            .text(function(d) { return d.name; })
+            .attr("fill", function(d) {
+                return '#fff';
+            })
+
+        // Transition nodes to their new position.将节点过渡到一个新的位置-----主要是针对节点过渡过程中的过渡效果
+        //node就是保留的数据集，为原来数据的图形添加过渡动画。首先是整个组的位置
+        var nodeUpdate = node.transition() //开始一个动画过渡
+            .duration(duration) //过渡延迟时间,此处主要设置的是圆圈节点随斜线的过渡延迟
+            .attr("r", 5)
+            .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+        nodeUpdate.select("text")
+            .style("fill-opacity", 1);
+
+        // Transition exiting nodes to the parent's new position.过渡现有的节点到父母的新位置。
+        //最后处理消失的数据，添加消失动画
+        var nodeExit = node.exit().transition()
+            .duration(duration)
+            .attr("transform", function(d) {
+                return "translate(" + source.x + "," + source.y + ")";
+            })
+            .remove();
+
+        // Update the links…线操作相关
+        //再处理连线集合
+        var link = svg.selectAll("path.link")
+            .data(links, function(d) { return d.target.id; });
+        link.enter().append("path")
+            .attr("class", "link");
+        link.exit().remove();
+        link.attr("d", function(d) {
+            var sourceX = d.source.x,
+                sourceY = d.source.y + (d.source.depth < 2 ? 35 : options.boxHeight),
+                targetX = d.target.x,
+                targetY = d.target.y;
+
+            return "M" + sourceX + "," + sourceY +
+                "V" + ((targetY - sourceY) / 2 + sourceY) +
+                "H" + targetX +
+                "V" + targetY;
+
+            return "translate(" + source.x + "," + source.y + ")";
+        });
+
+        // Stash the old positions for transition.将旧的斜线过渡效果隐藏
+        nodes.forEach(function(d) {
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
+    }
+
+    //定义一个将某节点折叠的函数
+    // Toggle children on click.切换子节点事件
+    function click(d) {
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            d.children = d._children;
+            d._children = null;
+        }
+        update(d);
+    }
+</script>

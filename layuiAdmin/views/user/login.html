@@ -1,0 +1,219 @@
+<style>
+    #VIEW-login {
+        height: 100%;
+        background: #252834;
+        padding-top: 1px;
+        margin-top: -1px;
+    }
+
+    #VIEW-login .layui-logo {
+        user-select: none;
+        overflow: hidden;
+        position: static;
+        font-size: 30px;
+        color: #d6e0f6;
+        width: 100%;
+        padding: 0;
+        line-height: 120px;
+        height: 120px;
+        color: #3491ff;
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        transition: height .8s cubic-bezier(0.075, 0.82, 0.165, 1);
+    }
+
+    #VIEW-login .layui-logo span {
+        font-weight: normal;
+        color: #fff;
+        border-bottom: 1px solid #3491ff;
+    }
+
+    #VIEW-login .layui-logo span b {
+        color: #3491ff;
+    }
+
+
+    #VIEW-login .login-wrap {
+        position: relative;
+        top: 50%;
+        margin-top: -290px;
+        height: 540px;
+    }
+
+    #VIEW-login .layui-form {
+        overflow: hidden;
+        background: #fff;
+        padding: 40px;
+        padding-bottom: 20px;
+        border-radius: 0px;
+        box-shadow: 0 0 30px #000;
+        position: relative;
+    }
+
+    #VIEW-login .layui-form-item {
+        position: relative;
+    }
+
+    #VIEW-login .verify-block {
+        display: none;
+    }
+
+    #VIEW-login .layui-input {
+        text-indent: 26px;
+    }
+
+    #VIEW-login .houseimg {
+        text-align: center;
+    }
+
+    #VIEW-login .houseimg img {
+        display: inline-block;
+        margin-top: 5%;
+    }
+
+    #VIEW-login .login-type-tab {
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    #VIEW-login .login-type-tab li {
+        display: inline-block;
+        padding-right: 20px;
+        font-size: 16px;
+        line-height: 30px;
+        color: #bbb;
+        cursor: pointer;
+        transition: color .5s ease;
+    }
+
+    #VIEW-login .login-type-tab li.active {
+        color: #333;
+    }
+
+    #VIEW-login .layui-form-item .label-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 38px;
+        line-height: 38px;
+        text-align: center;
+        color: #d2d2d2 !important;
+    }
+</style>
+<div id="VIEW-login" lay-title="登录">
+    <div class="login-wrap">
+        <div class="layui-container">
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-lg4 layui-col-lg-offset4 layuiAdmin-tc">
+                    <div class="layui-logo"><span>LayuiAdmin</span></div>
+                </div>
+                <div class="layui-col-xs12 layui-col-lg4 layui-col-lg-offset4">
+                    <div class="layui-form" lay-filter="login-form">
+                        <ul class="login-type-tab">
+                            <li login-type="password" class="active">密码登录</li>
+                        </ul>
+                        <div class="normal-login-form">
+                            <div class="layui-form-item">
+                                <label class="layui-icon label-icon layui-icon-username"></label>
+                                <input type="text" name="username" value="13300000000" lay-verify="phone" lay-verType="tips" placeholder="手机号码" maxlength="11" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-item password-block">
+                                <label class="layui-icon label-icon layui-icon-password"></label>
+                                <input type="password" name="pass" value="123456" lay-verify="password" lay-verType="tips" placeholder="密码" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-item">
+                                <input type="checkbox" name="autoLogin" title="下次自动登录" lay-skin="primary" checked>
+                            </div>
+                            <div class="layui-form-item">
+                                <button class="layui-btn layui-btn-normal layui-btn-fluid" lay-submit lay-filter="login-submit">
+                                    <i style="display: none" class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i>
+                                    立即登录
+                                </button>
+                            </div>
+                            <div class="layui-form-item layuiAdmin-tr">
+                                <a lay-href="/user/forget">注册账号</a>
+                                &nbsp;&nbsp;
+                                <a style="margin-right:10px;" lay-href="/user/forget">忘记密码？</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'helper', 'util', 'form'], function(admin, helper, util, form) {
+        var $ = layui.jquery;
+        var view = $('#VIEW-login');
+        var viewImgVerifyBlock = view.find('.verify-block');
+        var viewImgVerifyInput = viewImgVerifyBlock.find('[name=verifyCode]');
+        var viewPhoneInput = view.find('[name=username]');
+        var viewTabBtn = view.find('.login-type-tab li');
+
+        var currentLoginType = 'password';
+        var QRExists = false;
+        var btnDisabledCls = 'layui-btn-disabled';
+        var smsCountdown = false;
+
+
+        form.render();
+        viewTabBtn.click(function() {
+            var type = $(this).attr('login-type');
+            $(this).addClass('active').siblings().removeClass('active');
+            layer.closeAll();
+            loginType[type]();
+        })
+
+        if (currentLoginType !== 'password') {
+            viewTabBtn.each(function(i) {
+                var elem = viewTabBtn.eq(i);
+                if (elem.attr('login-type') === currentLoginType) elem.click();
+            })
+        }
+
+        var loginType = {
+            normalInput: view.find('.normal-login-form'),
+            elem: {
+                password: view.find('.password-block'),
+            },
+            password: function() {
+                viewImgVerifyBlock.hide();
+                this.tabs('password');
+            },
+            tabs: function(name) {
+                this.normalInput.show();
+                layui.each(this.elem, function(key, elem) {
+                    elem.css('display', name == key ? 'block' : 'none');
+                })
+                currentLoginType = name;
+            }
+        }
+
+        form.verify({
+            password: function(value, el) {
+                if (currentLoginType == 'password' && value.length < 6) return '登录密码不能少于 6 位';
+            }
+        })
+
+        //提交登录表单
+        form.on('submit(login-submit)', function(data) {
+            var loading = $(this).find('.layui-icon');
+            if (loading.is(":visible")) return;
+            loading.show();
+            admin.get({
+                api: 'login',
+                data: data.field,
+                success: function(res) {
+                    admin.login(res.data.token, { user: res.data.user }, data.field.autoLogin != 'on');
+                    admin.navigate('/');
+                },
+                complete: function() {
+                    //loading.hide();
+                }
+            });
+            return false;
+        })
+
+    })
+</script>

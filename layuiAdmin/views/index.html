@@ -1,0 +1,210 @@
+<div class="layui-fluid" id="VIEW-index" lay-title="首页">
+  <div class="padding-tb-20">
+    <h1 class="font-lead">LayuiAdmin 后台模板</h1>
+  </div>
+  <div class="layui-row layui-col-space15">
+    <div class="layui-col-lg8">
+      <div class="layui-row layui-col-space15">
+        <div class="layui-col-sm4">
+          <div class="layuiAdmin-linecard">
+            <p class="layuiAdmin-linecard-title">日成交额</p>
+            <span class="layuiAdmin-linecard-text">￥229,200</span>
+            <span class="font-ignore">万元</span>
+          </div>
+        </div>
+        <div class="layui-col-sm4">
+          <div class="layuiAdmin-linecard layuiAdmin-br-green">
+            <p class="layuiAdmin-linecard-title">日新增用户</p>
+            <span class="layuiAdmin-linecard-text">2468</span>
+            <span class="font-ignore">人</span>
+          </div>
+        </div>
+        <div class="layui-col-sm4">
+          <div class="layuiAdmin-linecard layuiAdmin-br-red">
+            <p class="layuiAdmin-linecard-title">
+              待处理订单
+              <a href="#" class="layuiAdmin-c-blue layuiAdmin-font-12">立即处理</a>
+            </p>
+            <span class="layuiAdmin-linecard-text">￥229,200</span>
+            <span class="font-ignore">万元</span>
+          </div>
+        </div>
+        <div class="layui-col-xs12">
+          <div class="layui-row layui-col-space15">
+
+            <div class="layui-col-xs12">
+              <div class="layui-card">
+                <div class="layui-card-extra layuiAdmin-c-gray">
+                  <span class="layuiAdmin-c-blue">今日</span>&nbsp;&nbsp;
+                  <span>本周</span>&nbsp;&nbsp; <span>本月</span>&nbsp;&nbsp;
+                  <span>全年</span>&nbsp;&nbsp;
+                </div>
+                <div class="layui-tab layui-tab-brief" lay-filter="index-chart">
+                  <ul class="layui-tab-title">
+                    <li class="layui-this">销售额</li>
+                    <li>访问量</li>
+                    <li>注册量</li>
+                  </ul>
+                  <div class="layui-tab-content" style="padding:0;">
+                    <div class="layui-tab-item layui-show">
+                      <div
+                        id="index-echartLine"
+                        style="width: 100%;height:400px;"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="layui-col-lg4">
+      <div class="layui-card">
+        <div class="layui-card-header">
+          <i class="layui-icon layui-icon-notification-fill"></i> 公告动态
+        </div>
+        <div class="layuiAdmin-cell">
+          <div class="layuiAdmin-cell-title">
+            广州商X一行将于30日莅临公司考察调研
+          </div>
+          <div class="layuiAdmin-cell-extra">09月14日 10:23:21</div>
+        </div>
+        <div class="layuiAdmin-cell">
+          <div class="layuiAdmin-cell-title">关于公司人员的调整</div>
+          <div class="layuiAdmin-cell-extra">09月14日 12:11:21</div>
+        </div>
+        <div class="layuiAdmin-cell">
+          <div class="layuiAdmin-cell-title">10月国庆新活动~，筹备上线</div>
+          <div class="layuiAdmin-cell-extra">09月14日 13:32:21</div>
+        </div>
+        <div class="layuiAdmin-cell">
+          <div class="layuiAdmin-cell-title">转化率统计分析报告</div>
+          <div class="layuiAdmin-cell-extra">08月10日 16:01:02</div>
+        </div>
+        <div class="layuiAdmin-cell">
+          <div class="layuiAdmin-cell-title">客服工作中的话语话术分享</div>
+          <div class="layuiAdmin-cell-extra">08月10日 15:53:23</div>
+        </div>
+      </div>
+      <div class="layui-card">
+        <div class="layui-card-header">服务器监控</div>
+        <div class="layui-card-body">
+          <div class="padding-bottom-20">
+            <h2 class="padding-bottom-10">
+              85%<span class="layuiAdmin-font-14 layuiAdmin-c-gray layuiAdmin-fr"
+                >CPU使用率</span
+              >
+            </h2>
+            <div class="layui-progress">
+              <div
+                class="layui-progress-bar layui-bg-blue"
+                lay-percent="85%"
+              ></div>
+            </div>
+          </div>
+          <div class="padding-bottom-20">
+            <h2 class="padding-bottom-10">
+              58%<span class="layuiAdmin-font-14 layuiAdmin-c-gray layuiAdmin-fr"
+                >内存占用率</span
+              >
+            </h2>
+            <div class="layui-progress">
+              <div
+                class="layui-progress-bar layui-bg-red"
+                lay-percent="58%"
+              ></div>
+            </div>
+          </div>
+          <div class="padding-bottom-20">
+            <h2 class="padding-bottom-10">
+              92%<span class="layuiAdmin-font-14 layuiAdmin-c-gray layuiAdmin-fr"
+                >磁盘占用率</span
+              >
+            </h2>
+            <div class="layui-progress">
+              <div
+                class="layui-progress-bar layui-bg-cyan"
+                lay-percent="92%"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script type="text/html" id="TPL-index-params">
+    {{# layui.each(d.params,function(i,item){ }}
+    <span class="layui-badge-rim">{{ item.val }}</span>
+    {{# }) }}
+  </script>
+
+</div>
+<script>
+  layui.use(
+    ['admin', 'echarts', 'element', 'helper', 'table', 'util'],
+    function(admin, echarts, element, helper, table, util) {
+      var $ = layui.jquery
+      var view = $('#VIEW-chart-index')
+      element.render('progress')
+
+      createChart()
+
+      element.on('tab(index-chart)', function(data) {
+        createChart()
+      })
+
+      function createChart() {
+        var seriesData = []
+        var xAxisData = []
+        for (var i = 1; i <= 12; i++) {
+          var val = helper.rand(8000, 10000)
+          seriesData.push(val)
+          xAxisData.push((i < 10 ? '0' + i : i) + ':00')
+        }
+        var option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+          },
+          xAxis: {
+            type: 'category',
+            data: xAxisData
+          },
+          yAxis: {
+            max: function(val) {
+              return val.max + 400
+            },
+            min: function(val) {
+              return val.min - 400
+            },
+            type: 'value',
+            axisLabel: { formatter: '￥{value}' },
+            axisPointer: { snap: true }
+          },
+          series: [
+            {
+              name: '时段销售额',
+              type: 'line',
+              symbolSize: 12,
+              lineStyle: {
+                normal: {
+                  width: 5,
+                  shadowColor: '#5a8bff',
+                  shadowBlur: 40,
+                  shadowOffsetY: 10
+                }
+              },
+              data: seriesData
+            }
+          ]
+        }
+        echarts
+          .init(document.getElementById('index-echartLine'), 'blue')
+          .setOption(option)
+      }
+    }
+  )
+</script>
